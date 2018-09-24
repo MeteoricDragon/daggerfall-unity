@@ -11,6 +11,19 @@ namespace DaggerfallWorkshop.Game
     [RequireComponent(typeof(CharacterController))]
     public class ClimbingMotor : MonoBehaviour
     {
+        private enum SearchDirection
+        {
+            /// <summary>
+            /// Rotating like an overhand pitch
+            /// </summary>
+            Overhand,
+            /// <summary>
+            /// Rotating like an underhand pitch
+            /// </summary>
+            Underhand,
+            Clockwise,
+            CounterClockwise
+        }
         private Entity.PlayerEntity player;
         private PlayerMotor playerMotor;
         private LevitateMotor levitateMotor;
@@ -245,7 +258,7 @@ namespace DaggerfallWorkshop.Game
             }
         }
 
-        private bool GetAdjacentWallInfo(Vector3 origin, Vector3 direction, bool searchClockwise)
+        private bool GetAdjacentWallInfo(Vector3 origin, Vector3 direction, SearchDirection searchDirection)
         {
             RaycastHit hit;
             float distance = direction.magnitude;
@@ -260,10 +273,12 @@ namespace DaggerfallWorkshop.Game
                 // Adjacent ledge has been found
                 adjacentLedgeDirection = -hit.normal;
 
-                if (searchClockwise)
+                if (searchDirection == SearchDirection.Clockwise)
                     adjacentWallRay = new Ray(hit.point, Vector3.Cross(hit.normal, Vector3.up));
-                else
+                else if (searchDirection == SearchDirection.CounterClockwise)
                     adjacentWallRay = new Ray(hit.point, Vector3.Cross(Vector3.up, hit.normal));
+                else if (searchDirection == SearchDirection.Underhand)
+                    adjacentWallRay = new Ray(hit.point, Vector3.Cross(hit.normal, -controller.transform.right));
 
                 Debug.DrawRay(adjacentWallRay.origin, adjacentWallRay.direction, Color.cyan);
 
@@ -286,12 +301,14 @@ namespace DaggerfallWorkshop.Game
                     origin = origin + direction;
                     Vector3 nextDirection = Vector3.zero; 
 
-                    if (searchClockwise)
+                    if (searchDirection == SearchDirection.Clockwise)
                         nextDirection = Vector3.Cross(lastOrigin - origin, Vector3.up).normalized * distance;
-                    else
+                    else if(searchDirection == SearchDirection.CounterClockwise)
                         nextDirection = Vector3.Cross(Vector3.up, lastOrigin - origin).normalized * distance;
+                    else if (searchDirection == SearchDirection.CounterClockwise)
+                        nextDirection = Vector3.Cross(lastOrigin - origin, -controller.transform.right).normalized * distance;
 
-                    return GetAdjacentWallInfo(origin, nextDirection, searchClockwise);
+                    return GetAdjacentWallInfo(origin, nextDirection, searchDirection);
                 }
                 FindWallLoopCount = 0;
                 return false;
@@ -354,18 +371,22 @@ namespace DaggerfallWorkshop.Game
                     #region Horizontal Climbing
                     if (movedRight || movedLeft)
                     {
+                        SearchDirection rotateDir = SearchDirection.Clockwise;
                         float checkScalar = controller.radius + 0.5f;
                         if (movedRight)
                             checkDirection = Vector3.Cross(Vector3.up, myLedgeDirection).normalized;
                         else if (movedLeft)
+                        {
                             checkDirection = Vector3.Cross(myLedgeDirection, Vector3.up).normalized;
+                            rotateDir = SearchDirection.CounterClockwise;
+                        }
 
                         // adjust direction so it can intersect with adjacentWallRay
                         myStrafeRay.direction = checkDirection;
                         Debug.DrawRay(myStrafeRay.origin, myStrafeRay.direction, Color.red);
 
                         // perform check for adjacent wall
-                        adjacentWallFound = GetAdjacentWallInfo(controller.transform.position, checkDirection * checkScalar, movedLeft);
+                        adjacentWallFound = GetAdjacentWallInfo(controller.transform.position, checkDirection * checkScalar, rotateDir);
 
                         Vector3 intersection;
                         Vector3 intersectionOrthogonal;
