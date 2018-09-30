@@ -146,7 +146,7 @@ namespace DaggerfallWorkshop.Game
                         else
                             rappelDirection = controller.transform.forward;
                         rappelDirection *= speed * 1.25f;
-                        groundMotor.MoveOnGround(rappelDirection);
+                        groundMotor.MoveWithPlatform(rappelDirection);
                     }
                     
                 }

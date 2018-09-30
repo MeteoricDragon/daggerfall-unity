@@ -87,15 +87,15 @@ namespace DaggerfallWorkshop.Game
             {  
                 // Hack to make sure that the player can get pushed by moving objects if he's not moving
                 const float pos = 0.0001f;
-                groundMotor.MoveOnGround(Vector3.up * pos);
-                groundMotor.MoveOnGround(Vector3.down * pos);
-                groundMotor.MoveOnGround(Vector3.left * pos);
-                groundMotor.MoveOnGround(Vector3.right * pos);
-                groundMotor.MoveOnGround(Vector3.forward * pos);
-                groundMotor.MoveOnGround(Vector3.back * pos);
+                groundMotor.MoveWithPlatform(Vector3.up * pos);
+                groundMotor.MoveWithPlatform(Vector3.down * pos);
+                groundMotor.MoveWithPlatform(Vector3.left * pos);
+                groundMotor.MoveWithPlatform(Vector3.right * pos);
+                groundMotor.MoveWithPlatform(Vector3.forward * pos);
+                groundMotor.MoveWithPlatform(Vector3.back * pos);
             }
 
-            groundMotor.MoveOnGround(moveDirection);
+            groundMotor.MoveWithPlatform(moveDirection);
             moveDirection = Vector3.zero;
         }
 
