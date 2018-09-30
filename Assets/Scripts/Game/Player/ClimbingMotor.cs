@@ -346,7 +346,7 @@ namespace DaggerfallWorkshop.Game
                 if (FindWallLoopCount == 0)
                 {
                     // The adjacent wall is an inside corner
-                    atInsideCorner = isAtInsideCorner(hit);
+                    atInsideCorner = IsAtInsideCorner(hit);
                 }
 
                 FindWallLoopCount = 0;
@@ -373,7 +373,7 @@ namespace DaggerfallWorkshop.Game
                 return false;
             }
         }
-        private bool isAtInsideCorner(RaycastHit hit)
+        private bool IsAtInsideCorner(RaycastHit hit)
         {
             // not sure if there's a better way to do this?
             float myAngle;
@@ -403,7 +403,6 @@ namespace DaggerfallWorkshop.Game
 
             // if strafing to either side, this will be set so we can check for wrap-around corners.
             Vector3 checkDirection = Vector3.zero;
-            //bool adjacentWallFound = false;
 
             if (!isSlipping)
             {
@@ -430,7 +429,7 @@ namespace DaggerfallWorkshop.Game
                     #region Horizontal Climbing
                     if (movedRight || movedLeft)
                     {
-                        //float checkScalar = controller.radius + 0.5f;
+                        float checkScalar = controller.radius + 0.5f;
                         if (movedRight)
                             checkDirection = Vector3.Cross(Vector3.up, myLedgeDirection).normalized;
                         else if (movedLeft)
@@ -441,7 +440,7 @@ namespace DaggerfallWorkshop.Game
                         Debug.DrawRay(myStrafeRay.origin, myStrafeRay.direction, Color.red);
 
                         // perform check for adjacent wall
-                        //adjacentWallFound = GetAdjacentWallInfo(controller.transform.position, checkDirection * checkScalar, movedLeft);
+                        GetAdjacentWallInfo(controller.transform.position, checkDirection * checkScalar, movedLeft);
 
                         Vector3 intersection;
                         Vector3 intersectionOrthogonal;
